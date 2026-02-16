@@ -78,7 +78,7 @@ export async function getInstagramMediaPage(
     const items = json.data ?? [];
 
     const normalized = items
-      .map((item) => {
+      .map((item): InstagramMediaItem | null => {
         const firstChild = item.children?.data?.[0];
         const mediaUrl = item.media_url || firstChild?.media_url || "";
         const thumbnailUrl = item.thumbnail_url || firstChild?.thumbnail_url;
@@ -90,13 +90,13 @@ export async function getInstagramMediaPage(
           caption: item.caption || "",
           mediaType: item.media_type,
           mediaUrl,
-          thumbnailUrl,
           permalink: item.permalink,
           timestamp: item.timestamp,
-          username: item.username,
+          ...(thumbnailUrl ? { thumbnailUrl } : {}),
+          ...(item.username ? { username: item.username } : {}),
         } satisfies InstagramMediaItem;
       })
-      .filter((item): item is InstagramMediaItem => Boolean(item));
+      .filter((item): item is InstagramMediaItem => item !== null);
 
     const nextCursor = json.paging?.cursors?.after || null;
     const hasMore = Boolean(json.paging?.next && nextCursor);
