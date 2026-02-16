@@ -1,76 +1,97 @@
 "use client";
 
-import React, { useMemo } from "react";
+import Image from "next/image";
 import Link from "next/link";
+import React, { useEffect, useMemo, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
-import { ArrowRight, Sparkles, ShieldCheck, Clock4, MapPin } from "lucide-react";
+import { ArrowRight, Sparkles, Flame, ShieldCheck } from "lucide-react";
+
+function cx(...c: Array<string | false | null | undefined>) {
+  return c.filter(Boolean).join(" ");
+}
 
 export default function Hero() {
   const reduce = useReducedMotion();
+  const [tilt, setTilt] = useState({ x: 0, y: 0 });
 
-  const words = useMemo(
-    () => ["Clean lines.", "Dark romance.", "Neon ink.", "Custom pieces."],
+  useEffect(() => {
+    if (reduce) return;
+    const onMove = (e: MouseEvent) => {
+      const rx = (e.clientY / window.innerHeight - 0.5) * 6;
+      const ry = (e.clientX / window.innerWidth - 0.5) * -8;
+      setTilt({ x: rx, y: ry });
+    };
+    window.addEventListener("mousemove", onMove);
+    return () => window.removeEventListener("mousemove", onMove);
+  }, [reduce]);
+
+  const badges = useMemo(
+    () => [
+      { icon: ShieldCheck, label: "Clean + sterile setup" },
+      { icon: Flame, label: "Custom-first work" },
+      { icon: Sparkles, label: "Appointment only" },
+    ],
     []
   );
 
   return (
     <section className="relative z-10">
-      <div className="mx-auto max-w-6xl px-4 pt-12 sm:px-6 sm:pt-16 lg:px-8">
-        <div className="relative overflow-hidden rounded-[36px] border border-white/10 bg-white/5">
-          {/* top glow */}
+      {/* Dark cinematic backdrop */}
+      <div className="pointer-events-none absolute inset-0 -z-10">
+        <div className="absolute inset-0 bg-ink" />
+        <div className="absolute inset-0 edge-fade" />
+        <div className="absolute inset-0 scanlines" />
+        {/* a couple controlled pink blooms */}
+        <div className="absolute left-[18%] top-[-120px] h-[520px] w-[520px] rounded-full bg-[rgba(255,47,179,0.10)] blur-[120px]" />
+        <div className="absolute right-[8%] top-[40px] h-[520px] w-[520px] rounded-full bg-[rgba(255,47,179,0.08)] blur-[140px]" />
+      </div>
+
+      <div className="mx-auto max-w-6xl px-4 pb-10 pt-14 sm:px-6 lg:px-8">
+        <div className="relative overflow-hidden rounded-[36px] border border-white/10 bg-black/40 backdrop-blur-xl subtle-ring">
+          {/* micro highlight */}
           <div className="pointer-events-none absolute inset-0">
-            <div className="absolute left-[10%] top-[-140px] h-[380px] w-[380px] rounded-full bg-[rgba(255,47,179,0.22)] blur-[90px]" />
-            <div className="absolute right-[0%] top-[-180px] h-[460px] w-[460px] rounded-full bg-[rgba(255,47,179,0.14)] blur-[110px]" />
+            <div className="absolute left-0 top-0 h-px w-full bg-gradient-to-r from-transparent via-[rgba(255,47,179,0.35)] to-transparent" />
+            <div className="absolute -left-20 top-[-120px] h-[420px] w-[420px] rounded-full bg-[rgba(255,47,179,0.09)] blur-[120px]" />
           </div>
 
-          <div className="relative grid gap-10 p-6 sm:p-10 lg:grid-cols-[1.15fr_0.85fr] lg:gap-12 lg:p-12">
-            {/* Left */}
+          <div className="grid gap-10 p-6 sm:p-10 lg:grid-cols-[1fr_1fr] lg:gap-12 lg:p-12">
+            {/* Left: copy */}
             <div>
-              <div className="inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-black/30 px-3 py-2 text-xs text-white/75">
-                <Sparkles className="h-4 w-4 text-[rgba(255,47,179,0.95)]" />
-                Solo appointment-only studio • Black + Pink theme
+              <div className="inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-white/75">
+                <span className="inline-block h-2 w-2 rounded-full bg-[rgba(255,47,179,0.9)]" />
+                Solo appointment-only studio
               </div>
 
               <motion.h1
-                initial={reduce ? { opacity: 1 } : { opacity: 0, y: 10 }}
+                initial={reduce ? { opacity: 1 } : { opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7, ease: [0.2, 0.9, 0.2, 1] }}
                 className="mt-5 text-balance text-4xl font-semibold tracking-tight sm:text-5xl"
               >
                 Elysian Ink
                 <span className="block text-white/70">
-                  Where chaos turns into craft.
+                  private sessions. loud results.
                 </span>
               </motion.h1>
 
-              <p className="mt-4 max-w-xl text-sm leading-relaxed text-white/70 sm:text-base">
-                Custom tattoos with a clean, premium experience. A private session
-                built around your idea — designed carefully, executed precisely.
-              </p>
-
-              {/* Animated “rotator” without heavy state */}
-              <div className="mt-5 flex flex-wrap items-center gap-2">
-                {words.map((w, idx) => (
-                  <motion.span
-                    key={w}
-                    initial={reduce ? { opacity: 1 } : { opacity: 0, y: 8, filter: "blur(6px)" }}
-                    animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                    transition={{
-                      duration: 0.7,
-                      delay: 0.10 + idx * 0.08,
-                      ease: [0.2, 0.9, 0.2, 1],
-                    }}
-                    className="rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-white/75"
+              <div className="mt-6 grid gap-3 sm:grid-cols-3">
+                {badges.map((b) => (
+                  <div
+                    key={b.label}
+                    className="rounded-3xl border border-white/10 bg-white/5 p-4"
                   >
-                    {w}
-                  </motion.span>
+                    <b.icon className="h-5 w-5 text-[rgba(255,47,179,0.95)]" />
+                    <div className="mt-2 text-xs font-semibold tracking-wide text-white/85">
+                      {b.label}
+                    </div>
+                  </div>
                 ))}
               </div>
 
               <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:items-center">
                 <Link
                   href="/booking"
-                  className="neon-border pink-glow inline-flex items-center justify-center gap-2 rounded-2xl bg-[rgba(255,47,179,0.16)] px-5 py-3 text-sm font-semibold tracking-wide transition hover:bg-[rgba(255,47,179,0.22)]"
+                  className="pink-edge inline-flex items-center justify-center gap-2 rounded-2xl border border-[rgba(255,47,179,0.22)] bg-[rgba(255,47,179,0.10)] px-5 py-3 text-sm font-semibold tracking-wide transition hover:bg-[rgba(255,47,179,0.14)]"
                 >
                   Book Appointment <ArrowRight className="h-4 w-4" />
                 </Link>
@@ -82,98 +103,80 @@ export default function Hero() {
                 </Link>
               </div>
 
-              <div className="mt-8 grid gap-3 sm:grid-cols-3">
-                {[
-                  { icon: ShieldCheck, label: "Sterile Setup", sub: "Clean & careful" },
-                  { icon: Clock4, label: "Appointment Only", sub: "Focused sessions" },
-                  { icon: MapPin, label: "Private Studio", sub: "No chaos, all craft" },
-                ].map((i) => (
-                  <div
-                    key={i.label}
-                    className="rounded-3xl border border-white/10 bg-white/5 p-4"
-                  >
-                    <i.icon className="h-5 w-5 text-[rgba(255,47,179,0.95)]" />
-                    <div className="mt-2 text-sm font-semibold">{i.label}</div>
-                    <div className="mt-1 text-xs text-white/60">{i.sub}</div>
-                  </div>
-                ))}
-              </div>
+              <p className="mt-3 text-xs text-white/55">
+                No walk-ins. Limited monthly slots. Response 24–48h.
+              </p>
             </div>
 
-            {/* Right */}
+            {/* Right: logo shrine */}
             <div className="relative">
-              <div className="absolute inset-0 -z-10 rounded-[32px] bg-[rgba(255,47,179,0.08)] blur-2xl" />
+              <div className="absolute inset-0 -z-10 rounded-[32px] bg-[rgba(255,47,179,0.06)] blur-2xl" />
 
-              <div className="glass soft-glow rounded-[32px] p-5 sm:p-6">
-                <div className="flex items-center justify-between">
-                  <div>
+              <motion.div
+                style={
+                  reduce
+                    ? undefined
+                    : {
+                        transform: `perspective(1100px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)`,
+                      }
+                }
+                className="relative overflow-hidden rounded-[32px] border border-white/10 bg-gradient-to-b from-white/5 to-black/30 p-5 sm:p-6"
+              >
+                {/* controlled “frame” lighting */}
+                <div className="pointer-events-none absolute inset-0">
+                  <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-transparent to-[rgba(255,47,179,0.10)]" />
+                  <div className="absolute -bottom-28 left-1/2 h-[420px] w-[520px] -translate-x-1/2 rounded-full bg-[rgba(255,47,179,0.10)] blur-[120px]" />
+                </div>
+
+                <div className="relative">
+                  <div className="mb-4 flex items-center justify-between">
                     <div className="text-xs uppercase tracking-[0.25em] text-white/60">
-                      Booking Queue
+                      Signature mark
                     </div>
-                    <div className="mt-2 text-xl font-semibold tracking-tight">
-                      Request a Slot
+                    <div className="rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-white/70">
+                      Custom-first • Appointment-only
                     </div>
                   </div>
-                  <div className="rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-white/70">
-                    Response: 24–48h
-                  </div>
-                </div>
 
-                <div className="mt-5 space-y-3">
-                  {[
-                    "Include your idea + reference pics",
-                    "Placement + approximate size",
-                    "Black & pink vibe welcome",
-                    "Budget range (optional)",
-                  ].map((t) => (
-                    <div
-                      key={t}
-                      className="flex items-start gap-3 rounded-2xl border border-white/10 bg-white/5 p-3"
-                    >
-                      <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-[rgba(255,47,179,0.95)]" />
-                      <div className="text-sm text-white/75">{t}</div>
+                  <div className="relative mx-auto w-full max-w-[520px]">
+                    <div className="absolute inset-0 rounded-[28px] bg-[rgba(255,47,179,0.10)] blur-[50px] opacity-60" />
+                    <Image
+                      src="/logo.png"
+                      alt="Elysian Ink Logo"
+                      width={1200}
+                      height={1200}
+                      priority
+                      className="relative w-full select-none drop-shadow-[0_0_22px_rgba(255,47,179,0.35)]"
+                    />
+                  </div>
+
+                  <div className="mt-5 grid gap-3 sm:grid-cols-2">
+                    <div className="rounded-3xl border border-white/10 bg-black/25 p-4">
+                      <div className="text-xs uppercase tracking-[0.25em] text-white/60">
+                        Style focus
+                      </div>
+                      <p className="mt-2 text-sm leading-relaxed text-white/70">
+                        Custom work with bold contrast and clean detail.
+                      </p>
                     </div>
-                  ))}
-                </div>
-
-                <div className="mt-5 rounded-3xl border border-white/10 bg-black/25 p-4">
-                  <div className="text-xs uppercase tracking-[0.25em] text-white/60">
-                    Studio vibe
+                    <div className="rounded-3xl border border-white/10 bg-black/25 p-4">
+                      <div className="text-xs uppercase tracking-[0.25em] text-white/60">
+                        Booking tip
+                      </div>
+                      <p className="mt-2 text-sm leading-relaxed text-white/70">
+                        Include refs + placement + size for fastest quote.
+                      </p>
+                    </div>
                   </div>
-                  <p className="mt-2 text-sm leading-relaxed text-white/70">
-                    Dark, clean, neon-glow energy. Minimal distractions. Maximum focus.
-                  </p>
-                </div>
 
-                <div className="mt-5">
                   <Link
-                    href="/booking"
-                    className="neon-border pink-glow inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[rgba(255,47,179,0.16)] px-5 py-3 text-sm font-semibold tracking-wide transition hover:bg-[rgba(255,47,179,0.22)]"
+                    href="/about"
+                    className="mt-5 inline-flex w-full items-center justify-center rounded-2xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold tracking-wide transition hover:bg-white/10"
                   >
-                    Start Booking <ArrowRight className="h-4 w-4" />
+                    About Us
                   </Link>
                 </div>
-              </div>
-
-              {/* floating accent chips */}
-              {!reduce && (
-                <>
-                  <motion.div
-                    className="absolute -right-2 -top-3 rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-white/70"
-                    animate={{ y: [0, -8, 0] }}
-                    transition={{ duration: 4.8, repeat: Infinity, ease: "easeInOut" }}
-                  >
-                    Neon-ready ✦
-                  </motion.div>
-                  <motion.div
-                    className="absolute -bottom-3 left-3 rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-white/70"
-                    animate={{ y: [0, 10, 0] }}
-                    transition={{ duration: 5.6, repeat: Infinity, ease: "easeInOut" }}
-                  >
-                    Black + Pink only
-                  </motion.div>
-                </>
-              )}
+              </motion.div>
             </div>
           </div>
         </div>

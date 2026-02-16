@@ -32,7 +32,7 @@ export default function GalleryPage() {
               <div className="text-sm font-semibold text-white/90">
                 {it.title}
               </div>
-              <div className="text-xs text-white/60">Black + pink aesthetic</div>
+              
             </div>
           </div>
         ))}

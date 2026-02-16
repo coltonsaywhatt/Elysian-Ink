@@ -139,20 +139,24 @@ export default function BackgroundFX() {
     };
   }, [prefersReducedMotion]);
 
-  return (
-    <div className="pointer-events-none fixed inset-0 z-0">
-      {/* soft gradient sheets */}
-      <div className="absolute inset-0 opacity-60">
-        <div className="absolute -left-24 top-[-10%] h-[520px] w-[520px] rounded-full bg-[rgba(255,47,179,0.18)] blur-[90px]" />
-        <div className="absolute -right-24 top-[10%] h-[520px] w-[520px] rounded-full bg-[rgba(255,47,179,0.14)] blur-[90px]" />
-        <div className="absolute left-[40%] top-[62%] h-[560px] w-[560px] -translate-x-1/2 rounded-full bg-[rgba(255,47,179,0.10)] blur-[110px]" />
-      </div>
-
-      {/* canvas FX */}
-      <canvas ref={canvasRef} className="absolute inset-0 opacity-70" />
-
-      {/* grid mask */}
-      <div className="grid-fade absolute inset-0 opacity-25" />
+return (
+  <div
+    aria-hidden="true"
+    className="pointer-events-none fixed inset-0 -z-10 overflow-hidden isolate"
+  >
+    {/* soft gradient sheets */}
+    <div className="absolute inset-0 opacity-60">
+      <div className="absolute -left-24 top-[-10%] h-[520px] w-[520px] rounded-full bg-[rgba(255,47,179,0.18)] blur-[90px]" />
+      <div className="absolute -right-24 top-[10%] h-[520px] w-[520px] rounded-full bg-[rgba(255,47,179,0.14)] blur-[90px]" />
+      <div className="absolute left-[40%] top-[62%] h-[560px] w-[560px] -translate-x-1/2 rounded-full bg-[rgba(255,47,179,0.10)] blur-[110px]" />
     </div>
-  );
+
+    {/* canvas FX */}
+    <canvas ref={canvasRef} className="absolute inset-0 opacity-70" />
+
+    {/* grid mask */}
+    <div className="grid-fade absolute inset-0 opacity-25" />
+  </div>
+);
+
 }

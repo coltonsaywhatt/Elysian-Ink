@@ -13,12 +13,17 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <body className="noise">
-        <BackgroundFX />
-        <Header />
-        <main className="relative z-10">{children}</main>
-        <Footer />
+    <html lang="en" className="h-full">
+      <body className="noise min-h-screen overflow-x-hidden">
+        <div className="relative flex min-h-screen flex-col">
+          <BackgroundFX />
+          <Header />
+
+          {/* main grows, footer stays right after content */}
+          <main className="relative z-10 flex-1">{children}</main>
+
+          <Footer />
+        </div>
       </body>
     </html>
   );
