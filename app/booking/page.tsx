@@ -17,6 +17,7 @@ import {
   Link as LinkIcon,
   Info,
 } from "lucide-react";
+import { useUploadThing } from "@/lib/uploadthing";
 
 type ContactMethod = "email" | "text";
 
@@ -30,7 +31,7 @@ type FormState = {
   styleTags: string[];
   placement: string;
   sizeInches: number; // approximate
-  isColor: "blackwork" | "black+pink" | "fullcolor" | "unsure";
+  isColor: "blackwork" |  "fullcolor" | "unsure";
 
   references: string; // links
   budgetMin: number;
@@ -53,7 +54,6 @@ function clamp(n: number, a: number, b: number) {
 
 const STYLE_TAGS = [
   "Fine-line",
-  "Blackwork",
   "Dark floral",
   "Lettering",
   "Ornamental",
@@ -96,6 +96,9 @@ export default function BookingPage() {
   const reduce = useReducedMotion();
   const [stepIndex, setStepIndex] = useState(0);
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const { startUpload, isUploading } = useUploadThing("referenceUploader");
 
   const [form, setForm] = useState<FormState>({
     name: "",
@@ -107,7 +110,7 @@ export default function BookingPage() {
     styleTags: [],
     placement: "Forearm",
     sizeInches: 5,
-    isColor: "black+pink",
+    isColor: "blackwork",
 
     references: "",
     budgetMin: 150,
@@ -186,19 +189,111 @@ export default function BookingPage() {
     }));
   }
 
-  function submit() {
+  async function submit() {
     if (!form.agree) return;
+    setSubmitting(true);
+    setSubmitError(null);
+    let uploadedKeys: string[] = [];
+    try {
+      const endpoint = process.env.NEXT_PUBLIC_FORMSPREE_BOOKING_ENDPOINT;
+      if (!endpoint) {
+        throw new Error("Missing NEXT_PUBLIC_FORMSPREE_BOOKING_ENDPOINT.");
+      }
 
-    // No backend yet — this is a premium frontend intake.
-    // You can wire this to Resend/EmailJS later.
-    setSubmitted(true);
+      let uploadedFiles: Array<{ name: string; size: number; url: string; key: string }> = [];
+      if (form.files.length > 0) {
+        const result = await startUpload(form.files);
+        if (!result || result.length === 0) {
+          throw new Error("File upload failed. Please try again.");
+        }
 
-    // For dev visibility (optional): console.log the payload
-    // eslint-disable-next-line no-console
-    console.log("BOOKING REQUEST", {
-      ...form,
-      files: form.files.map((f) => ({ name: f.name, size: f.size, type: f.type })),
-    });
+        uploadedFiles = result
+          .map((file) => {
+            const f = file as {
+              key?: string;
+              name?: string;
+              size?: number;
+              ufsUrl?: string;
+              url?: string;
+            };
+            return {
+              key: f.key || "",
+              name: f.name || "reference",
+              size: typeof f.size === "number" ? f.size : 0,
+              url: f.ufsUrl || f.url || "",
+            };
+          })
+          .filter((f) => Boolean(f.url && f.key));
+
+        uploadedKeys = uploadedFiles.map((f) => f.key);
+      }
+
+      const { files, ...rest } = form;
+      const body = new FormData();
+      body.append("formType", "booking");
+      body.append("name", rest.name);
+      body.append("email", rest.email);
+      body.append("phone", rest.phone);
+      body.append("contactMethod", rest.contactMethod);
+      body.append("idea", rest.idea);
+      body.append("styleTags", rest.styleTags.join(", "));
+      body.append("placement", rest.placement);
+      body.append("sizeInches", String(rest.sizeInches));
+      body.append("isColor", String(rest.isColor));
+      body.append("references", rest.references);
+      body.append("budgetMin", String(rest.budgetMin));
+      body.append("budgetMax", String(rest.budgetMax));
+      body.append("availability", rest.availability);
+      body.append("notes", rest.notes);
+      body.append("originalFileCount", String(files.length));
+      body.append("uploadedFileCount", String(uploadedFiles.length));
+      if (uploadedFiles.length > 0) {
+        body.append(
+          "uploadedFileUrls",
+          uploadedFiles
+            .map((f) => `<a href="${f.url}" target="_blank" rel="noopener noreferrer">${f.name}</a>`)
+            .join("<br/>")
+        );
+      } else {
+        body.append("uploadedFileUrls", "No uploaded files");
+      }
+
+      const res = await fetch(endpoint, {
+        method: "POST",
+        headers: { Accept: "application/json" },
+        body,
+      });
+      if (!res.ok) {
+        const raw = await res.text().catch(() => "");
+        let json: { errors?: Array<{ message?: string }> } | null = null;
+        try {
+          json = raw ? (JSON.parse(raw) as { errors?: Array<{ message?: string }> }) : null;
+        } catch {
+          json = null;
+        }
+        const message =
+          json?.errors?.[0]?.message ||
+          raw ||
+          `Form submit failed (${res.status})`;
+        throw new Error(message);
+      }
+      setSubmitted(true);
+    } catch (error) {
+      if (uploadedKeys.length > 0) {
+        try {
+          await fetch("/api/uploadthing/cleanup", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ keys: uploadedKeys }),
+          });
+        } catch {
+          // Best-effort cleanup only.
+        }
+      }
+      setSubmitError(error instanceof Error ? error.message : "Unable to submit request right now.");
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   return (
@@ -365,10 +460,10 @@ export default function BookingPage() {
                       Next <ArrowRight className="h-4 w-4" />
                     </button>
                   ) : (
-                    <button
-                      type="button"
-                      onClick={submit}
-                      disabled={!canGoNext}
+                  <button
+                    type="button"
+                    onClick={submit}
+                      disabled={!canGoNext || submitting || isUploading}
                       className={cx(
                         "inline-flex items-center justify-center gap-2 rounded-2xl border px-5 py-3 text-sm font-semibold tracking-wide transition",
                         canGoNext
@@ -376,10 +471,16 @@ export default function BookingPage() {
                           : "cursor-not-allowed border-white/10 bg-black/20 text-white/35"
                       )}
                     >
-                      Submit Request <Check className="h-4 w-4" />
+                      {submitting || isUploading ? "Sending..." : "Submit Request"} <Check className="h-4 w-4" />
                     </button>
                   )}
                 </div>
+
+                {submitError ? (
+                  <div className="mt-3 rounded-2xl border border-red-300/30 bg-red-500/10 px-4 py-3 text-xs text-red-100">
+                    {submitError}
+                  </div>
+                ) : null}
 
                 {/* gentle note */}
                 <div className="mt-4 rounded-2xl border border-white/10 bg-black/20 p-4 text-xs leading-relaxed text-white/60">
@@ -422,9 +523,6 @@ export default function BookingPage() {
                     </Link>
                   </div>
 
-                  <p className="mt-4 text-xs text-white/60">
-                    (No backend wired yet — this is the polished front-end flow. Next step is sending these requests to your email.)
-                  </p>
                 </div>
               </motion.div>
             )}
@@ -483,7 +581,7 @@ function StepContact({
           label="Phone"
           value={form.phone}
           onChange={(v) => update("phone", v)}
-          placeholder="(###) ###-####"
+          placeholder="(203) 927-9852"
           required
           error={missing.includes("phone")}
         />
@@ -563,7 +661,7 @@ function StepDesign({
           value={form.isColor}
           onChange={(v) => update("isColor", v as any)}
           options={[
-            { label: "Blackwork", value: "blackwork" },
+            { label: "Fine-line", value: "Fine-line" },
             { label: "Full color", value: "fullcolor" },
             { label: "Unsure", value: "unsure" },
           ]}
@@ -671,7 +769,7 @@ function StepRefs({
                 Upload reference images (optional)
               </div>
               <p className="mt-1 text-sm text-white/65">
-                Add up to 8 files. (This is front-end only until we wire email.)
+                Add up to 8 files. Files are uploaded first, then included in your booking submission.
               </p>
             </div>
 
@@ -679,6 +777,7 @@ function StepRefs({
               <Upload className="h-4 w-4" />
               Add files
               <input
+                suppressHydrationWarning
                 type="file"
                 accept="image/*"
                 multiple
@@ -789,8 +888,8 @@ function StepReview({
         <ReviewItem
           label="Color direction"
           value={
-            form.isColor === "blackwork"
-              ? "Blackwork"
+            form.isColor === "Fine-line"
+              ? "Fine-line"
 
                 : form.isColor === "fullcolor"
                   ? "Full color"
@@ -841,6 +940,7 @@ function StepReview({
 
       <label className="mt-5 flex items-start gap-3 rounded-[28px] border border-white/10 bg-black/20 p-5">
         <input
+          suppressHydrationWarning
           type="checkbox"
           checked={form.agree}
           onChange={(e) => update("agree", e.target.checked)}
@@ -920,8 +1020,8 @@ function SummaryCard({ form, missing }: { form: FormState; missing: string[] }) 
             <Row
               label="Color"
               value={
-                form.isColor === "blackwork"
-                  ? "Blackwork"
+                form.isColor === "Fine-line"
+                  ? "Fine-line"
                     : form.isColor === "fullcolor"
                       ? "Full color"
                       : "Unsure"
@@ -1038,6 +1138,7 @@ function Input({
         {label} {required ? <span className="text-[rgba(255,47,179,0.95)]">*</span> : null}
       </label>
       <input
+        suppressHydrationWarning
         type={type}
         value={value}
         onChange={(e) => onChange(e.target.value)}
@@ -1087,6 +1188,7 @@ function Textarea({
           <span className="pointer-events-none absolute left-4 top-4">{icon}</span>
         ) : null}
         <textarea
+          suppressHydrationWarning
           value={value}
           onChange={(e) => onChange(e.target.value)}
           rows={rows}
@@ -1126,6 +1228,7 @@ function Select({
         {label}
       </label>
       <select
+        suppressHydrationWarning
         value={value}
         onChange={(e) => onChange(e.target.value)}
         className="mt-2 w-full rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-sm text-white/85 outline-none focus:border-[rgba(255,47,179,0.45)]"
@@ -1172,6 +1275,7 @@ function Slider({
       </div>
 
       <input
+        suppressHydrationWarning
         className="mt-4 w-full"
         type="range"
         min={min}
@@ -1229,6 +1333,7 @@ function RangeSlider({
         <div>
           <div className="mb-1 text-[11px] text-white/55">Min</div>
           <input
+            suppressHydrationWarning
             className="w-full"
             type="range"
             min={min}
@@ -1242,6 +1347,7 @@ function RangeSlider({
         <div>
           <div className="mb-1 text-[11px] text-white/55">Max</div>
           <input
+            suppressHydrationWarning
             className="w-full"
             type="range"
             min={min + step}

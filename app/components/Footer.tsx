@@ -160,22 +160,22 @@ export default function Footer() {
               <div className="text-xs uppercase tracking-[0.25em] text-white/60">Direct Line</div>
               <div className="mt-4 space-y-2">
                 <a
-                  href="mailto:info@elysianink.com"
+                  href="mailto:Elysian.Ink@outlook.com"
                   className="flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-sm font-semibold text-white/78 transition hover:bg-white/10 hover:text-white"
                 >
                   <span className="inline-flex min-w-0 items-center gap-2">
                     <Mail className="h-4 w-4 shrink-0 text-[rgba(255,47,179,0.90)]" />
-                    <span className="truncate">info@elysianink.com</span>
+                    <span className="truncate">Elysian.Ink@outlook.com</span>
                   </span>
                   <ArrowRight className="h-4 w-4 shrink-0 text-white/45" />
                 </a>
                 <a
-                  href="tel:+1XXXXXXXXXX"
+                  href="tel:+12039279852"
                   className="flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-sm font-semibold text-white/78 transition hover:bg-white/10 hover:text-white"
                 >
                   <span className="inline-flex min-w-0 items-center gap-2">
                     <Phone className="h-4 w-4 shrink-0 text-[rgba(255,47,179,0.90)]" />
-                    <span className="truncate">(###) ###-####</span>
+                    <span className="truncate">(203) 927-9852</span>
                   </span>
                   <ArrowRight className="h-4 w-4 shrink-0 text-white/45" />
                 </a>
@@ -183,7 +183,7 @@ export default function Footer() {
 
               <div className="mt-4 flex items-center gap-2">
                 <a
-                  href="#"
+                  href="https://www.instagram.com/elysian.ink_"
                   target="_blank"
                   rel="noreferrer"
                   className="grid h-10 w-10 place-items-center rounded-2xl border border-white/10 bg-black/25 text-white/75 transition hover:bg-white/10 hover:text-white"
@@ -192,7 +192,7 @@ export default function Footer() {
                   <Instagram className="h-4 w-4" />
                 </a>
                 <a
-                  href="#"
+                  href="https://www.facebook.com/ElysianInktattoo"
                   target="_blank"
                   rel="noreferrer"
                   className="grid h-10 w-10 place-items-center rounded-2xl border border-white/10 bg-black/25 text-white/75 transition hover:bg-white/10 hover:text-white"

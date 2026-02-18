@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import {
@@ -52,8 +52,15 @@ function clamp(n: number, a: number, b: number) {
 
 export default function ContactPage() {
   const reduce = useReducedMotion();
+  const [mounted, setMounted] = useState(false);
   const [stepIndex, setStepIndex] = useState(0);
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const [form, setForm] = useState<ContactForm>({
     name: "",
@@ -102,12 +109,62 @@ export default function ContactPage() {
   const next = () => setStepIndex((i) => clamp(i + 1, 0, STEPS.length - 1));
   const prev = () => setStepIndex((i) => clamp(i - 1, 0, STEPS.length - 1));
 
-  function submit() {
+  async function submit() {
     if (!form.agree) return;
-    setSubmitted(true);
+    setSubmitting(true);
+    setSubmitError(null);
+    try {
+      const endpoint = process.env.NEXT_PUBLIC_FORMSPREE_CONTACT_ENDPOINT;
+      if (!endpoint) {
+        throw new Error("Missing NEXT_PUBLIC_FORMSPREE_CONTACT_ENDPOINT.");
+      }
 
-    // eslint-disable-next-line no-console
-    console.log("CONTACT MESSAGE", form);
+      const body = new FormData();
+      body.append("formType", "contact");
+      body.append("name", form.name);
+      body.append("email", form.email);
+      body.append("phone", form.phone);
+      body.append("contactMethod", form.contactMethod);
+      body.append("reason", form.reason);
+      body.append("subject", form.subject);
+      body.append("message", form.message);
+      body.append("availability", form.availability);
+
+      const res = await fetch(endpoint, {
+        method: "POST",
+        headers: { Accept: "application/json" },
+        body,
+      });
+      if (!res.ok) {
+        const raw = await res.text().catch(() => "");
+        let json: { errors?: Array<{ message?: string }> } | null = null;
+        try {
+          json = raw ? (JSON.parse(raw) as { errors?: Array<{ message?: string }> }) : null;
+        } catch {
+          json = null;
+        }
+        const message =
+          json?.errors?.[0]?.message ||
+          raw ||
+          `Form submit failed (${res.status})`;
+        throw new Error(message);
+      }
+      setSubmitted(true);
+    } catch (error) {
+      setSubmitError(error instanceof Error ? error.message : "Unable to send message right now.");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  if (!mounted) {
+    return (
+      <div className="relative z-10 mx-auto max-w-6xl px-4 pb-20 pt-10 sm:px-6 lg:px-8">
+        <div className="rounded-[36px] border border-white/10 bg-white/5 p-6 text-sm text-white/65">
+          Loading contact form...
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -259,7 +316,7 @@ export default function ContactPage() {
                     <button
                       type="button"
                       onClick={submit}
-                      disabled={!canGoNext}
+                      disabled={!canGoNext || submitting}
                       className={cx(
                         "inline-flex items-center justify-center gap-2 rounded-2xl border px-5 py-3 text-sm font-semibold tracking-wide transition",
                         canGoNext
@@ -267,10 +324,16 @@ export default function ContactPage() {
                           : "cursor-not-allowed border-white/10 bg-black/20 text-white/35"
                       )}
                     >
-                      Send Message <Check className="h-4 w-4" />
+                      {submitting ? "Sending..." : "Send Message"} <Check className="h-4 w-4" />
                     </button>
                   )}
                 </div>
+
+                {submitError ? (
+                  <div className="mt-3 rounded-2xl border border-red-300/30 bg-red-500/10 px-4 py-3 text-xs text-red-100">
+                    {submitError}
+                  </div>
+                ) : null}
 
                 {/* Small note */}
                 <div className="mt-4 rounded-2xl border border-white/10 bg-black/20 p-4 text-xs leading-relaxed text-white/60">
@@ -386,7 +449,7 @@ function StepContact({
           label="Phone"
           value={form.phone}
           onChange={(v) => update("phone", v)}
-          placeholder="(###) ###-####"
+          placeholder="(203) 927-9852"
           required
           error={missing.includes("phone")}
         />
@@ -550,6 +613,7 @@ function StepReview({
 
       <label className="mt-5 flex items-start gap-3 rounded-[28px] border border-white/10 bg-black/20 p-5">
         <input
+          suppressHydrationWarning
           type="checkbox"
           checked={form.agree}
           onChange={(e) => update("agree", e.target.checked)}
@@ -597,15 +661,15 @@ function StudioCard() {
         </div>
 
         <div className="mt-4 space-y-3">
-          <InfoRow icon={Mail} label="Email" value="info@elysianink.com" />
-          <InfoRow icon={Phone} label="Phone" value="(###) ###-####" />
+          <InfoRow icon={Mail} label="Email" value="Elysian.Ink@outlook.com" />
+          <InfoRow icon={Phone} label="Phone" value="(203) 927-9852" />
           <InfoRow icon={Clock4} label="Hours" value="By appointment" />
           <InfoRow icon={MapPin} label="Location" value="Webster, FL" />
         </div>
 
         <div className="mt-5 grid gap-3 sm:grid-cols-2">
           <a
-            href="#"
+            href="https://www.instagram.com/elysian.ink_"
             className="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-semibold text-white/80 transition hover:bg-white/10"
           >
             <Instagram className="h-4 w-4" />
@@ -704,6 +768,7 @@ function Input({
         ) : null}
       </label>
       <input
+        suppressHydrationWarning
         type={type}
         value={value}
         onChange={(e) => onChange(e.target.value)}
@@ -750,6 +815,7 @@ function Textarea({
         ) : null}
       </label>
       <textarea
+        suppressHydrationWarning
         value={value}
         onChange={(e) => onChange(e.target.value)}
         rows={rows}
@@ -787,6 +853,7 @@ function Select({
         {label}
       </label>
       <select
+        suppressHydrationWarning
         value={value}
         onChange={(e) => onChange(e.target.value)}
         className="mt-2 w-full rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-sm text-white/85 outline-none focus:border-[rgba(255,47,179,0.45)]"

@@ -410,7 +410,7 @@ export default function AboutPage() {
                       Realism
                     </div>
                     <p className="mt-1 text-xs leading-relaxed text-white/60">
-                      Fine-line, blackwork, floral, etc.
+                      Fine-line, traditional, floral, etc.
                     </p>
                   </div>
 

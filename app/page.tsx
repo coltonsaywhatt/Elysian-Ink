@@ -20,8 +20,8 @@ const labCards = [
     span: "",
   },
   {
-    title: "Blackwork + Neon Accent",
-    desc: "Dark romance with razor-clean contrast and shape flow.",
+    title: "Fine-line",
+    desc: "Classic tattoo styling with clean lines, balanced shading, and timeless flow.",
     tone: "bg-white/5",
     span: "md:col-span-2",
   },

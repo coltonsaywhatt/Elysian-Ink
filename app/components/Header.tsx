@@ -131,7 +131,7 @@ export default function Header() {
             <div className="flex items-center gap-2 sm:gap-3">
               <div className="hidden items-center gap-2 lg:flex">
                 <a
-                  href="#"
+                  href="https://www.instagram.com/elysian.ink_"
                   target="_blank"
                   rel="noreferrer"
                   className="grid h-10 w-10 place-items-center rounded-2xl border border-white/10 bg-white/8 text-white/75 transition hover:border-white/20 hover:bg-white/12 hover:text-white"
@@ -142,7 +142,7 @@ export default function Header() {
                 </a>
 
                 <a
-                  href="#"
+                  href="https://www.facebook.com/ElysianInktattoo"
                   target="_blank"
                   rel="noreferrer"
                   className="grid h-10 w-10 place-items-center rounded-2xl border border-white/10 bg-white/8 text-white/75 transition hover:border-white/20 hover:bg-white/12 hover:text-white"
@@ -306,14 +306,14 @@ export default function Header() {
 
                 <div className="mt-4 grid grid-cols-2 gap-2">
                   <a
-                    href="tel:+1XXXXXXXXXX"
+                    href="tel:+12039279852"
                     className="inline-flex items-center justify-center gap-2 rounded-[18px] border border-white/10 bg-white/8 px-3 py-2.5 text-xs font-semibold tracking-[0.08em] text-white/85 transition hover:bg-white/12"
                   >
                     <Phone className="h-3.5 w-3.5" />
                     Call
                   </a>
                   <a
-                    href="mailto:info@elysianink.com"
+                    href="mailto:Elysian.Ink@outlook.com"
                     className="inline-flex items-center justify-center gap-2 rounded-[18px] border border-white/10 bg-white/8 px-3 py-2.5 text-xs font-semibold tracking-[0.08em] text-white/85 transition hover:bg-white/12"
                   >
                     <Mail className="h-3.5 w-3.5" />
@@ -323,7 +323,7 @@ export default function Header() {
 
                 <div className="mt-3 grid gap-2 sm:grid-cols-2">
                   <a
-                    href="#"
+                    href="https://www.instagram.com/elysian.ink_"
                     target="_blank"
                     rel="noreferrer"
                     className="inline-flex items-center justify-center gap-2 rounded-[20px] border border-white/10 bg-white/8 px-4 py-3 text-sm font-semibold text-white/85 transition hover:bg-white/12"
@@ -331,7 +331,7 @@ export default function Header() {
                     <Instagram className="h-4 w-4" /> Instagram
                   </a>
                   <a
-                    href="#"
+                    href="https://www.facebook.com/ElysianInktattoo"
                     target="_blank"
                     rel="noreferrer"
                     className="inline-flex items-center justify-center gap-2 rounded-[20px] border border-white/10 bg-white/8 px-4 py-3 text-sm font-semibold text-white/85 transition hover:bg-white/12"
