@@ -206,7 +206,7 @@ export default function Footer() {
         </div>
 
         <div className="mt-6 flex flex-col items-center justify-between gap-3 border-t border-white/10 pt-5 text-xs text-white/55 sm:flex-row">
-          <div>© {year} Elysian Ink. Built in the dark.</div>
+          <div>© 2026 Elysian Ink. Dark ink. Clean finish.</div>
           <div className="flex items-center gap-4">
             <Link href="/privacy" className="transition hover:text-white/80">
               Privacy

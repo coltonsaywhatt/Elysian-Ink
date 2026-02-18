@@ -28,11 +28,11 @@ export default async function GalleryPage() {
 
           <h1 className="mt-4 text-balance text-3xl font-semibold tracking-tight sm:text-4xl">
             The Archive
-            <span className="block text-white/70">photos, videos, healed outcomes.</span>
+            <span className="block text-white/70">Photos, videos, and healed results.</span>
           </h1>
 
           <p className="mt-3 max-w-2xl text-sm leading-relaxed text-white/70 sm:text-base">
-            This gallery pulls directly from Instagram so your newest posted work appears automatically.
+            Explore recent work, healed results, and available styles to help plan your next piece.
           </p>
         </div>
       </section>
