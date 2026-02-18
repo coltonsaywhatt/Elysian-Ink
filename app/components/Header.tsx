@@ -208,10 +208,10 @@ export default function Header() {
                   ? { duration: 0 }
                   : { duration: 0.28, ease: [0.2, 0.9, 0.2, 1] }
               }
-              className="fixed bottom-3 right-3 top-3 z-50 h-auto w-[94vw] max-w-[440px] overflow-hidden rounded-[30px] border border-white/15 bg-black/90 backdrop-blur-2xl"
+              className="fixed inset-0 z-50 w-screen overflow-hidden border-0 bg-black/95 backdrop-blur-2xl sm:bottom-3 sm:right-3 sm:top-3 sm:w-[94vw] sm:max-w-[440px] sm:rounded-[30px] sm:border sm:border-white/15 sm:bg-black/90"
               aria-label="Mobile menu"
             >
-              <div className="relative flex h-full flex-col p-5">
+              <div className="relative flex h-[100dvh] min-h-0 flex-col overflow-y-auto overscroll-contain p-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-[max(1rem,env(safe-area-inset-top))] sm:h-full sm:p-5">
                 <div className="pointer-events-none absolute inset-0">
                   <div className="absolute -right-24 top-[-120px] h-[520px] w-[520px] rounded-full bg-[rgba(255,47,179,0.14)] blur-[150px]" />
                   <div className="absolute -left-20 bottom-[-140px] h-[420px] w-[420px] rounded-full bg-[rgba(255,47,179,0.12)] blur-[140px]" />
@@ -220,7 +220,7 @@ export default function Header() {
 
                 <div className="relative flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="relative h-20 w-20">
+                    <div className="relative h-16 w-16 sm:h-20 sm:w-20">
                       <Image
                         src="/logo.png"
                         alt="Elysian Ink"
@@ -251,18 +251,17 @@ export default function Header() {
                     <div className="absolute -right-12 -top-12 h-32 w-32 rounded-full bg-[rgba(255,47,179,0.22)] blur-[48px]" />
                   </div>
                   <div className="relative flex items-start gap-3">
-                    <span className="mt-0.5 grid h-9 w-9 place-items-center rounded-2xl border border-white/10 bg-black/35">
+                    <span className="mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-2xl border border-white/10 bg-black/35">
                       <Sparkles className="h-4 w-4 text-[rgba(255,47,179,0.95)]" />
                     </span>
-                    <div>
+                    <div className="min-w-0">
                       <div className="text-sm font-semibold text-white/95">
                         Private sessions. Loud results.
                       </div>
-                      <div className="mt-1 text-sm text-white/75">
-                        Built for custom-first clients who want serious craft, clean heals,
-                        and a premium studio experience.
+                      <div className="mt-1 text-sm leading-relaxed text-white/75">
+                        Custom design, clean heals, and a premium studio workflow.
                       </div>
-                      <div className="mt-3 inline-flex items-center gap-2 rounded-full border border-[rgba(255,47,179,0.30)] bg-[rgba(255,47,179,0.16)] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-white/85">
+                      <div className="mt-3 hidden items-center gap-2 rounded-full border border-[rgba(255,47,179,0.30)] bg-[rgba(255,47,179,0.16)] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-white/85 sm:inline-flex">
                         <span className="inline-block h-1.5 w-1.5 rounded-full bg-[rgba(255,47,179,0.95)]" />
                         Now booking: March / April
                       </div>
@@ -340,7 +339,7 @@ export default function Header() {
                   </a>
                 </div>
 
-                <div className="mt-auto pt-5">
+                <div className="mt-5 pt-4 sm:mt-auto sm:pt-5">
                   <Link
                     href="/booking"
                     onClick={() => setOpen(false)}
