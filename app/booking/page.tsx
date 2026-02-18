@@ -661,7 +661,7 @@ function StepDesign({
           value={form.isColor}
           onChange={(v) => update("isColor", v as any)}
           options={[
-            { label: "Fine-line", value: "Fine-line" },
+            { label: "Fine-line", value: "blackwork" },
             { label: "Full color", value: "fullcolor" },
             { label: "Unsure", value: "unsure" },
           ]}
@@ -888,7 +888,7 @@ function StepReview({
         <ReviewItem
           label="Color direction"
           value={
-            form.isColor === "Fine-line"
+            form.isColor === "blackwork"
               ? "Fine-line"
 
                 : form.isColor === "fullcolor"
@@ -1020,7 +1020,7 @@ function SummaryCard({ form, missing }: { form: FormState; missing: string[] }) 
             <Row
               label="Color"
               value={
-                form.isColor === "Fine-line"
+                form.isColor === "blackwork"
                   ? "Fine-line"
                     : form.isColor === "fullcolor"
                       ? "Full color"
