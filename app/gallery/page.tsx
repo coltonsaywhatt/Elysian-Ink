@@ -9,7 +9,7 @@ export default async function GalleryPage() {
   const page = configured
     ? await getInstagramMediaPage(24)
     : { items: [], nextCursor: null, hasMore: false };
-  const profileUrl = process.env.NEXT_PUBLIC_INSTAGRAM_PROFILE_URL;
+  const profileUrl = process.env.NEXT_PUBLIC_INSTAGRAM_PROFILE_URL?.trim() || undefined;
 
   return (
     <div className="relative z-10 mx-auto max-w-6xl px-4 pb-16 pt-10 sm:px-6 lg:px-8">

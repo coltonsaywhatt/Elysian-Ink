@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "instagram:refresh": "node scripts/refresh-instagram-token.mjs"
   },
   "dependencies": {
     "@uploadthing/react": "^7.3.3",

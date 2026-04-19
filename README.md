@@ -35,6 +35,22 @@ cp env.example .env.local
 3. Restart dev server if it was already running.
 4. Open `http://localhost:3000/gallery`.
 
+### Refreshing the Instagram token
+
+This project includes a local refresh script for long-lived Instagram tokens:
+
+```bash
+npm run instagram:refresh
+```
+
+It will:
+
+- read `INSTAGRAM_ACCESS_TOKEN` from `.env.local` or `.env`
+- call Instagram's refresh endpoint
+- write the refreshed token back into the same env file
+
+After refresh, restart the dev server so Next picks up the updated env value.
+
 ### Getting the token
 
 Use Meta's Instagram Graph API flow to generate a user token, then exchange it for a long-lived token.  

@@ -39,8 +39,13 @@ type InstagramGraphResponse = {
 
 const FALLBACK_LIMIT = 40;
 
+function readInstagramAccessToken() {
+  const token = process.env.INSTAGRAM_ACCESS_TOKEN;
+  return token?.trim() || null;
+}
+
 export function hasInstagramConfig() {
-  return Boolean(process.env.INSTAGRAM_ACCESS_TOKEN);
+  return Boolean(readInstagramAccessToken());
 }
 
 export type InstagramMediaPage = {
@@ -53,7 +58,7 @@ export async function getInstagramMediaPage(
   limit = FALLBACK_LIMIT,
   after?: string
 ): Promise<InstagramMediaPage> {
-  const token = process.env.INSTAGRAM_ACCESS_TOKEN;
+  const token = readInstagramAccessToken();
   if (!token) return { items: [], nextCursor: null, hasMore: false };
 
   const endpoint = new URL("https://graph.instagram.com/me/media");
